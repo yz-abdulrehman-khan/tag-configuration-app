@@ -8,6 +8,7 @@ const TagData = () => {
   const [cachedConfigData, setCachedConfigData] = useState(
     () => JSON.parse(localStorage.getItem("configData")) || {}
   );
+  const [loading, setLoading] = useState(false);
 
   const fetchConfigData = async (tag) => {
     try {
@@ -15,6 +16,7 @@ const TagData = () => {
       if (cachedConfigData[tag]) {
         return true;
       }
+      setLoading(true);
       // Fetch configuration data if not in cache
       const response = await axios.get(`${baseURL}/browse?tag_filter=${tag}`);
 
@@ -28,6 +30,8 @@ const TagData = () => {
       }
     } catch (error) {
       console.error(`Error fetching configuration data for ${tag}:`, error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,19 +51,28 @@ const TagData = () => {
         <input
           type="text"
           value={tags}
-          onChange={(e) => setTags(e.target.value)}
+          onChange={(e) => setTags(e.target.value.replace(/\s/g, "").trim())}
         />
         <button onClick={handleFetchData}>Fetch Data</button>
       </div>
       <div>
         <h3>{tags} Configuration Data</h3>
-        {tags.split(",").map((tag) => {
-          return (
-            <div>
-              <pre>{JSON.stringify(cachedConfigData[tag], null, 2)}</pre>
-            </div>
-          );
-        })}
+        {loading ? (
+          <>Loading</>
+        ) : (
+          tags.split(",").map((tag) => {
+            return (
+              <>
+                <h3>{tag} Configuration Data</h3>
+                {cachedConfigData[tag] ? (
+                  <pre>{JSON.stringify(cachedConfigData[tag], null, 2)}</pre>
+                ) : (
+                  <>No Data</>
+                )}
+              </>
+            );
+          })
+        )}
       </div>
     </div>
   );
