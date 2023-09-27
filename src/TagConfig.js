@@ -56,7 +56,6 @@ const TagData = () => {
         <button onClick={handleFetchData}>Fetch Data</button>
       </div>
       <div>
-        <h3>{tags} Configuration Data</h3>
         {loading ? (
           <>Loading</>
         ) : (
